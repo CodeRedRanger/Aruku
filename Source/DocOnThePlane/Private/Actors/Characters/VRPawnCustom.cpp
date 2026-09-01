@@ -76,6 +76,8 @@ void AVRPawnCustom::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(Game, Warning, TEXT("VRPawn %s | Authority: %s | Local: %s"), *GetName(), HasAuthority() ? TEXT("YES") : TEXT("NO"), IsLocallyControlled() ? TEXT("YES") : TEXT("NO")); 
+
 	UWorld* World = GetWorld();
 
 	if (!World)
