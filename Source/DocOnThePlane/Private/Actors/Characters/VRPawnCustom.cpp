@@ -15,6 +15,8 @@ AVRPawnCustom::AVRPawnCustom()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true; //can't make false because using tick to test ray trace
 
+	bReplicates = true; 
+
 	/*
 	//Will create widget component and attach to root
 	//then in begin play, will attach it to the camera that is created in VRPawn BP
