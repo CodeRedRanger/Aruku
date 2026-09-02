@@ -47,6 +47,31 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "VR")
 	class UCameraComponent* VRCameraReference = nullptr;
 
+	UPROPERTY(ReplicatedUsing = OnRep_HeadTransform)
+	FTransform ReplicatedHeadTransform;
+
+	/*
+	UPROPERTY(ReplicatedUsing = OnRep_LeftHandTransform)
+	FTransform ReplicatedLeftHandTransform;
+
+	UPROPERTY(ReplicatedUsing = OnRep_RightHandTransform)
+	FTransform ReplicatedRightHandTransform; 
+	*/
+
+	UFUNCTION()
+	void OnRep_HeadTransform(); 
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateHeadTransform(const FTransform& NewHeadTransform); 
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void UpdateLocalHeadTransform(const FTransform& NewHeadTransform);
+
+
+public:
+	 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	
 	
 

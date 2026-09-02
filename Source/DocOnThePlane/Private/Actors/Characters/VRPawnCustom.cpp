@@ -5,7 +5,9 @@
 #include "ChaosMeter.h"
 #include "Utility/MedGameInstance.h"
 #include "Camera/CameraComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Widgets/FlightAttendantWarning.h"
 #include "../DocOnThePlane.h"
 
@@ -39,37 +41,7 @@ AVRPawnCustom::AVRPawnCustom()
 
 }
 
-void AVRPawnCustom::ShowFlightAttendantWarning()
-{
-	if (!FlightAttendantWarningComponent)
-	{
-		UE_LOG(Game,Error,TEXT("ShowFlightAttendantWarning: warning component is invalid."));
-		return;
-	}
 
-	// Remove this check if the warning should appear repeatedly.
-	if (bFlightAttendantWarningAcknowledged)
-	{
-		return;
-	}
-
-	FlightAttendantWarningComponent->SetHiddenInGame(false);
-	FlightAttendantWarningComponent->SetVisibility(true);
-	FlightAttendantWarningComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
-
-void AVRPawnCustom::HideFlightAttendantWarning()
-{
-	if (!FlightAttendantWarningComponent)
-	{
-		return;
-	}
-
-	FlightAttendantWarningComponent->SetVisibility(false);
-	FlightAttendantWarningComponent->SetHiddenInGame(true);
-	FlightAttendantWarningComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-}
 
 // Called when the game starts or when spawned
 void AVRPawnCustom::BeginPlay()
@@ -78,6 +50,8 @@ void AVRPawnCustom::BeginPlay()
 
 	UE_LOG(Game, Warning, TEXT("VRPawn %s | Authority: %s | Local: %s"), *GetName(), HasAuthority() ? TEXT("YES") : TEXT("NO"), IsLocallyControlled() ? TEXT("YES") : TEXT("NO")); 
 
+	//SetRemoteAvatarVisible(!IsLocallyControlled());
+	
 	UWorld* World = GetWorld();
 
 	if (!World)
@@ -255,6 +229,80 @@ void AVRPawnCustom::BeginPlay()
 	ChaosMeter->SetVisibility(false);
 
 
+}
+
+void AVRPawnCustom::ShowFlightAttendantWarning()
+{
+	if (!FlightAttendantWarningComponent)
+	{
+		UE_LOG(Game, Error, TEXT("ShowFlightAttendantWarning: warning component is invalid."));
+		return;
+	}
+
+
+	// Remove this check if the warning should appear repeatedly.
+	if (bFlightAttendantWarningAcknowledged)
+	{
+		return;
+	}
+
+	FlightAttendantWarningComponent->SetHiddenInGame(false);
+	FlightAttendantWarningComponent->SetVisibility(true);
+	FlightAttendantWarningComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AVRPawnCustom::HideFlightAttendantWarning()
+{
+	if (!FlightAttendantWarningComponent)
+	{
+		return;
+	}
+
+	FlightAttendantWarningComponent->SetVisibility(false);
+	FlightAttendantWarningComponent->SetHiddenInGame(true);
+	FlightAttendantWarningComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+}
+
+
+void AVRPawnCustom::ServerUpdateHeadTransform_Implementation(const FTransform& NewHeadTransform)
+{
+	ReplicatedHeadTransform = NewHeadTransform; 
+
+	//UE_LOG(Game,Warning,TEXT("Server received head transform from %s, Location: %s"),*GetName(),*NewHeadTransform.GetLocation().ToString());
+
+
+}
+
+void AVRPawnCustom::OnRep_HeadTransform()
+{
+	UE_LOG(Game, Warning, TEXT("REMOTE received head transform for %s, Location %s"), *GetName(), *ReplicatedHeadTransform.GetLocation().ToString());
+
+}
+
+void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		ReplicatedHeadTransform = NewHeadTransform;
+	}
+	else
+	{
+		ServerUpdateHeadTransform(NewHeadTransform);
+	}
+}
+
+void AVRPawnCustom::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//Server owns replicated head transform and it is sent to clients
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedHeadTransform); 
 }
 
 // Called every frame
