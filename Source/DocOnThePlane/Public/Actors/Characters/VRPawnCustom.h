@@ -92,13 +92,19 @@ protected:
 
 	//Teleport
 	UFUNCTION(Server, Reliable)
-	void ServerTeleportPawn(const FVector& NewLocation); 
+	void ServerTeleportPawn(const FVector& NewLocation, const FRotator& NewRotation);
+
+	UFUNCTION(Server, Reliable)
+	void ServerUpdatePawnRotation(const FRotator& NewRotation); 
 
 
 public:
 
 	UFUNCTION(BlueprintCallable, Category = Networking)
-	void NotifyServerOfTeleport(const FVector& NewLocation); 
+	void NotifyServerOfRotation(const FRotator& NewRotation); 
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void NotifyServerOfTeleport(const FVector& NewLocation, const FRotator& NewRotation); 
 	 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

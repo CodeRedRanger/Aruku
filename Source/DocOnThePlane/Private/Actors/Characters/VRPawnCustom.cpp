@@ -365,13 +365,25 @@ void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
 	}
 }
 
-void AVRPawnCustom::ServerTeleportPawn_Implementation(const FVector& NewLocation)
+
+//ALL NETWORKING
+
+void AVRPawnCustom::ServerUpdatePawnRotation_Implementation(const FRotator& NewRotation)
 {
-	SetActorLocation(NewLocation); 
+	SetActorRotation(NewRotation); 
+}
+
+void AVRPawnCustom::ServerTeleportPawn_Implementation(const FVector& NewLocation, const FRotator& NewRotation)
+{
+	SetActorLocationAndRotation(NewLocation, NewRotation); 
+
+
+	UE_LOG(Game, Warning, TEXT("SERVER TELEPORT %s, Location: %s"), *GetName(), *GetActorLocation().ToString());
+	
 }
 
 
-void AVRPawnCustom::NotifyServerOfTeleport(const FVector& NewLocation)
+void AVRPawnCustom::NotifyServerOfRotation(const FRotator& NewRotation)
 {
 	if (!IsLocallyControlled())
 	{
@@ -380,15 +392,32 @@ void AVRPawnCustom::NotifyServerOfTeleport(const FVector& NewLocation)
 
 	if (HasAuthority())
 	{
-		SetActorLocation(NewLocation); 
+		SetActorRotation(NewRotation);
 	}
 	else
 	{
-		ServerTeleportPawn(NewLocation); 
+		ServerUpdatePawnRotation(NewRotation); 
 	}
 }
 
-//ALL NETWORKING
+void AVRPawnCustom::NotifyServerOfTeleport(const FVector& NewLocation, const FRotator& NewRotation)
+{
+	if (!IsLocallyControlled())
+	{
+		return; 
+	}
+
+	if (HasAuthority())
+	{
+		SetActorLocationAndRotation(NewLocation, NewRotation); 
+	}
+	else
+	{
+		ServerTeleportPawn(NewLocation, NewRotation); 
+	}
+}
+
+
 void AVRPawnCustom::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -425,13 +454,13 @@ void AVRPawnCustom::DebugMoveRight()
 
 void AVRPawnCustom::ServerDebugMoveRight_Implementation()
 {
-	UE_LOG(Game, Warning, TEXT("SERVER BEFORE MOVE: %s, Location: %s"), *GetName(), *GetActorLocation().ToString()); 
+	//UE_LOG(Game, Warning, TEXT("SERVER BEFORE MOVE: %s, Location: %s"), *GetName(), *GetActorLocation().ToString()); 
 
 	const FVector NewLocation = GetActorLocation() + FVector(0.0, 300.0f, 0.0f);
 	
 	SetActorLocation(NewLocation); 
 
-	UE_LOG(Game, Warning, TEXT("SERVER AFTER MOVE %s Location: %s"), *GetName(), *GetActorLocation().ToString()); 
+	//UE_LOG(Game, Warning, TEXT("SERVER AFTER MOVE %s Location: %s"), *GetName(), *GetActorLocation().ToString()); 
 
 }
 
