@@ -47,16 +47,39 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "VR")
 	class UCameraComponent* VRCameraReference = nullptr;
 
-	UPROPERTY(ReplicatedUsing = OnRep_HeadTransform)
-	FTransform ReplicatedHeadTransform;
-
-	/*
+	
+	//Networking
+	
+	//Left hand
 	UPROPERTY(ReplicatedUsing = OnRep_LeftHandTransform)
 	FTransform ReplicatedLeftHandTransform;
 
+	UFUNCTION()
+	void OnRep_LeftHandTransform(); 
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateLeftHandTransform(const FTransform& NewLeftHandTransform); 
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void UpdateLocalLeftHandTransform(const FTransform& NewLeftHandTransform); 
+
+	
 	UPROPERTY(ReplicatedUsing = OnRep_RightHandTransform)
 	FTransform ReplicatedRightHandTransform; 
-	*/
+	
+	UFUNCTION()
+	void OnRep_RightHandTransform(); 
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateRightHandTransform(const FTransform& NewRightHandTransform); 
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void UpdateLocalRightHandTransform(const FTransform& NewRightHandTransform); 
+	
+
+	//Head
+	UPROPERTY(ReplicatedUsing = OnRep_HeadTransform)
+	FTransform ReplicatedHeadTransform;
 
 	UFUNCTION()
 	void OnRep_HeadTransform(); 
@@ -72,8 +95,29 @@ public:
 	 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	
-	
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedHeadTransform() const
+	{
+		return ReplicatedHeadTransform; 
+	}
+
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedLeftHandTransform() const
+	{
+		return ReplicatedLeftHandTransform; 
+	}
+
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedRightHandTransform() const
+	{
+		return ReplicatedRightHandTransform; 
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Network Debug")
+	void DebugMoveRight(); 
+
+	UFUNCTION(Server, Reliable)
+	void ServerDebugMoveRight(); 
 
 public:	
 	// Called every frame

@@ -18,6 +18,7 @@ AVRPawnCustom::AVRPawnCustom()
 	PrimaryActorTick.bCanEverTick = true; //can't make false because using tick to test ray trace
 
 	bReplicates = true; 
+	SetReplicateMovement(true); 
 
 	/*
 	//Will create widget component and attach to root
@@ -265,9 +266,75 @@ void AVRPawnCustom::HideFlightAttendantWarning()
 }
 
 
+//LEFT HAND
+
+void AVRPawnCustom::ServerUpdateLeftHandTransform_Implementation(const FTransform& NewLeftHandTransform)
+{
+	ReplicatedLeftHandTransform = NewLeftHandTransform;
+}
+
+void AVRPawnCustom::OnRep_LeftHandTransform()
+{
+	//UE_LOG(Game, Warning, TEXT("REMOTE received LEFT HAND transform for %s, Location %s"), *GetName(), *ReplicatedLeftHandTransform.GetLocation().ToString()); 
+}
+
+//this is called in blueprints every tick of pawn
+void AVRPawnCustom::UpdateLocalLeftHandTransform(const FTransform& NewLeftHandTransform)
+{
+	//if the pawn belongs to the local player, move on in function, else return
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	//if the pawn is the server, go ahead and update the replicated left hand
+	//other wise tell the server to update the replicated left hand transform
+	if (HasAuthority())
+	{
+		ReplicatedLeftHandTransform = NewLeftHandTransform;
+	}
+	else
+	{
+		ServerUpdateLeftHandTransform(NewLeftHandTransform); 
+	}
+}
+
+
+//RIGHT HAND
+
+void AVRPawnCustom::ServerUpdateRightHandTransform_Implementation(const FTransform& NewRightHandTransform)
+{
+	ReplicatedRightHandTransform = NewRightHandTransform; 
+}
+
+void AVRPawnCustom::OnRep_RightHandTransform()
+{
+	//UE_LOG(Game, Warning, TEXT("REMOTE received RIGHT HAND transform for %s, Location %s"), *GetName(), *ReplicatedRightHandTransform.GetLocation().ToString()); 
+}
+
+void AVRPawnCustom::UpdateLocalRightHandTransform(const FTransform& NewRightHandTransform)
+{
+	if (!IsLocallyControlled())
+	{
+		return; 
+	}
+
+	if (HasAuthority())
+	{
+		ReplicatedRightHandTransform = NewRightHandTransform; 
+	}
+	else
+	{
+		ServerUpdateRightHandTransform(NewRightHandTransform); 
+	}
+}
+
+
+//HEAD
+
 void AVRPawnCustom::ServerUpdateHeadTransform_Implementation(const FTransform& NewHeadTransform)
 {
-	ReplicatedHeadTransform = NewHeadTransform; 
+	ReplicatedHeadTransform = NewHeadTransform;
 
 	//UE_LOG(Game,Warning,TEXT("Server received head transform from %s, Location: %s"),*GetName(),*NewHeadTransform.GetLocation().ToString());
 
@@ -276,8 +343,9 @@ void AVRPawnCustom::ServerUpdateHeadTransform_Implementation(const FTransform& N
 
 void AVRPawnCustom::OnRep_HeadTransform()
 {
-	UE_LOG(Game, Warning, TEXT("REMOTE received head transform for %s, Location %s"), *GetName(), *ReplicatedHeadTransform.GetLocation().ToString());
-
+	//UE_LOG(Game, Warning, TEXT("REMOTE received head transform for %s, Location %s"), *GetName(), *ReplicatedHeadTransform.GetLocation().ToString());
+	UE_LOG(Game, Warning, TEXT("Head relative location X=%f Y=%f Z=%f"), ReplicatedHeadTransform.GetLocation().X, 
+		ReplicatedHeadTransform.GetLocation().Y, ReplicatedHeadTransform.GetLocation().Z); 
 }
 
 void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
@@ -297,12 +365,43 @@ void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
 	}
 }
 
+
+//ALL NETWORKING
 void AVRPawnCustom::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//Server owns replicated head transform and it is sent to clients
 	DOREPLIFETIME(AVRPawnCustom, ReplicatedHeadTransform); 
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftHandTransform); 
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightHandTransform); 
+}
+
+void AVRPawnCustom::DebugMoveRight()
+{
+	if (!IsLocallyControlled())
+	{
+		return; 
+	}
+
+	if (HasAuthority())
+	{
+		const FVector NewLocation = GetActorLocation() + FVector(0.00f, 300.0f, 0.0f);
+
+		SetActorLocation(NewLocation);
+	}
+	else
+	{
+		ServerDebugMoveRight(); 
+	}
+
+}
+
+void AVRPawnCustom::ServerDebugMoveRight_Implementation()
+{
+	const FVector NewLocation = GetActorLocation() + FVector(0.0, 300.0f, 0.0f);
+	
+	SetActorLocation(NewLocation); 
 }
 
 // Called every frame
