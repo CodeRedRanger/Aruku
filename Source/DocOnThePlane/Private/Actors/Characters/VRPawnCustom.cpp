@@ -344,8 +344,8 @@ void AVRPawnCustom::ServerUpdateHeadTransform_Implementation(const FTransform& N
 void AVRPawnCustom::OnRep_HeadTransform()
 {
 	//UE_LOG(Game, Warning, TEXT("REMOTE received head transform for %s, Location %s"), *GetName(), *ReplicatedHeadTransform.GetLocation().ToString());
-	UE_LOG(Game, Warning, TEXT("Head relative location X=%f Y=%f Z=%f"), ReplicatedHeadTransform.GetLocation().X, 
-		ReplicatedHeadTransform.GetLocation().Y, ReplicatedHeadTransform.GetLocation().Z); 
+	//UE_LOG(Game, Warning, TEXT("Head relative location X=%f Y=%f Z=%f"), ReplicatedHeadTransform.GetLocation().X, 
+	//	ReplicatedHeadTransform.GetLocation().Y, ReplicatedHeadTransform.GetLocation().Z); 
 }
 
 void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
@@ -365,6 +365,28 @@ void AVRPawnCustom::UpdateLocalHeadTransform(const FTransform& NewHeadTransform)
 	}
 }
 
+void AVRPawnCustom::ServerTeleportPawn_Implementation(const FVector& NewLocation)
+{
+	SetActorLocation(NewLocation); 
+}
+
+
+void AVRPawnCustom::NotifyServerOfTeleport(const FVector& NewLocation)
+{
+	if (!IsLocallyControlled())
+	{
+		return; 
+	}
+
+	if (HasAuthority())
+	{
+		SetActorLocation(NewLocation); 
+	}
+	else
+	{
+		ServerTeleportPawn(NewLocation); 
+	}
+}
 
 //ALL NETWORKING
 void AVRPawnCustom::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -384,11 +406,15 @@ void AVRPawnCustom::DebugMoveRight()
 		return; 
 	}
 
+	UE_LOG(Game, Warning, TEXT("BEFORE M: %s, Authority:%s, Location: %s"), *GetName(), HasAuthority() ? TEXT("YES") : TEXT("NO"), *GetActorLocation().ToString()); 
+
 	if (HasAuthority())
 	{
 		const FVector NewLocation = GetActorLocation() + FVector(0.00f, 300.0f, 0.0f);
 
 		SetActorLocation(NewLocation);
+
+		UE_LOG(Game, Warning, TEXT("HOST MOVED: %s, Location: %s"), *GetName(), *GetActorLocation().ToString());
 	}
 	else
 	{
@@ -399,9 +425,21 @@ void AVRPawnCustom::DebugMoveRight()
 
 void AVRPawnCustom::ServerDebugMoveRight_Implementation()
 {
+	UE_LOG(Game, Warning, TEXT("SERVER BEFORE MOVE: %s, Location: %s"), *GetName(), *GetActorLocation().ToString()); 
+
 	const FVector NewLocation = GetActorLocation() + FVector(0.0, 300.0f, 0.0f);
 	
 	SetActorLocation(NewLocation); 
+
+	UE_LOG(Game, Warning, TEXT("SERVER AFTER MOVE %s Location: %s"), *GetName(), *GetActorLocation().ToString()); 
+
+}
+
+void AVRPawnCustom::DebugPrintPawnLocation()
+{
+	UE_LOG(Game, Warning, TEXT("CHECK LOCATION: %s, Authority: %s, Local:%s, Location: %s"), *GetName(),
+		HasAuthority() ? TEXT("YES") : TEXT("NO"), IsLocallyControlled() ? TEXT("YES") : TEXT("NO"),
+		*GetActorLocation().ToString()); 
 }
 
 // Called every frame

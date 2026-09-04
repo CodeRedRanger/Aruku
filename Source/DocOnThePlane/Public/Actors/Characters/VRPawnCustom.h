@@ -90,8 +90,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = Networking)
 	void UpdateLocalHeadTransform(const FTransform& NewHeadTransform);
 
+	//Teleport
+	UFUNCTION(Server, Reliable)
+	void ServerTeleportPawn(const FVector& NewLocation); 
+
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void NotifyServerOfTeleport(const FVector& NewLocation); 
 	 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -118,6 +125,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerDebugMoveRight(); 
+
+	UFUNCTION(BlueprintCallable, Category = "Network Debug")
+	void DebugPrintPawnLocation(); 
 
 public:	
 	// Called every frame
