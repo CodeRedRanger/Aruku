@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Widgets/FlightAttendantWarning.h"
+#include "Utility/NetworkGrabbable.h"
 #include "../DocOnThePlane.h"
 
 // Sets default values
@@ -273,6 +274,28 @@ void AVRPawnCustom::ServerUpdateLeftHandTransform_Implementation(const FTransfor
 	ReplicatedLeftHandTransform = NewLeftHandTransform;
 }
 
+void AVRPawnCustom::ClientRejectNetworkGrab_Implementation()
+{
+	HandleNetworkGrabRejected();
+}
+
+
+void AVRPawnCustom::ServerRequestNetworkRelease_Implementation(AActor* GrabbableActor)
+{
+	if (!IsValid(GrabbableActor))
+	{
+		return;
+	}
+
+	if (!GrabbableActor->GetClass()->ImplementsInterface(UNetworkGrabbable::StaticClass()))
+	{
+		return;
+	}
+
+	INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this); 
+
+}
+
 void AVRPawnCustom::OnRep_LeftHandTransform()
 {
 	//UE_LOG(Game, Warning, TEXT("REMOTE received LEFT HAND transform for %s, Location %s"), *GetName(), *ReplicatedLeftHandTransform.GetLocation().ToString()); 
@@ -471,6 +494,11 @@ void AVRPawnCustom::DebugPrintPawnLocation()
 		*GetActorLocation().ToString()); 
 }
 
+void AVRPawnCustom::DebugRequestGrab(AActor* GrabbableActor)
+{
+	RequestNetworkGrab(GrabbableActor);
+}
+
 // Called every frame
 void AVRPawnCustom::Tick(float DeltaTime)
 {
@@ -498,6 +526,65 @@ void AVRPawnCustom::HandleFlightAttendantWarningOK()
 void AVRPawnCustom::ResetFlightAttendantWarning()
 {
 	bFlightAttendantWarningAcknowledged = false;
+}
+
+void AVRPawnCustom::RequestNetworkGrab(AActor* GrabbableActor)
+{
+	if (!IsLocallyControlled() || !IsValid(GrabbableActor))
+	{
+		return; 
+	}
+
+	if (HasAuthority())
+	{
+		if (GrabbableActor->GetClass()->ImplementsInterface(UNetworkGrabbable::StaticClass()))
+		{
+			INetworkGrabbable::Execute_TryClaim(GrabbableActor, this); 
+		}
+		
+	}
+	else
+	{
+		ServerRequestNetworkGrab(GrabbableActor); 
+	}
+}
+
+void AVRPawnCustom::RequestNetworkRelease(AActor* GrabbableActor)
+{
+	if (!IsLocallyControlled() || !IsValid(GrabbableActor))
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		if (GrabbableActor->GetClass()->ImplementsInterface(UNetworkGrabbable::StaticClass()))
+		{
+			INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this);
+		}
+	}
+}
+
+void AVRPawnCustom::ServerRequestNetworkGrab_Implementation(AActor* GrabbableActor)
+{
+	if (!IsValid(GrabbableActor))
+	{
+		return;
+	}
+
+	if (!GrabbableActor->GetClass()->ImplementsInterface(UNetworkGrabbable::StaticClass()))
+	{
+		return; 
+	}
+
+	const bool bClaimed = INetworkGrabbable::Execute_TryClaim(GrabbableActor, this); 
+
+	if (!bClaimed)
+	{
+		ClientRejectNetworkGrab(); 
+	}
+
+
 }
 
 

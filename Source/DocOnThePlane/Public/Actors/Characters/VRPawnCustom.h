@@ -8,6 +8,7 @@
 #include "VRPawnCustom.generated.h"
 
 class UFlightAttendantWarning;
+class AGrabbableBall; 
 
 UCLASS()
 class DOCONTHEPLANE_API AVRPawnCustom : public APawn
@@ -27,7 +28,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Warning")
 	void ResetFlightAttendantWarning();
 
+
+	//Networking
+	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
+	void RequestNetworkGrab(AActor* GrabbableActor); 
+
+
+	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
+	void RequestNetworkRelease(AActor* GrabbableActor);
+
+
 protected:
+
+
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Warning")
 	TSubclassOf<UFlightAttendantWarning> FlightAttendantWarningClass;
 
@@ -49,6 +63,18 @@ protected:
 
 	
 	//Networking
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestNetworkGrab(AActor* GrabbableActor);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRejectNetworkGrab();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Network:Grab")
+	void HandleNetworkGrabRejected();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestNetworkRelease(AActor* GrabbableActor); 
 	
 	//Left hand
 	UPROPERTY(ReplicatedUsing = OnRep_LeftHandTransform)
@@ -99,7 +125,7 @@ protected:
 
 
 public:
-
+	//Networking
 	UFUNCTION(BlueprintCallable, Category = Networking)
 	void NotifyServerOfRotation(const FRotator& NewRotation); 
 
@@ -126,6 +152,7 @@ public:
 		return ReplicatedRightHandTransform; 
 	}
 
+	//Debug functions to test network replication without a second player.
 	UFUNCTION(BlueprintCallable, Category = "Network Debug")
 	void DebugMoveRight(); 
 
@@ -134,6 +161,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Network Debug")
 	void DebugPrintPawnLocation(); 
+
+	UFUNCTION(BlueprintCallable, Category = "Network Debug")
+	void DebugRequestGrab(AActor* GrabbableActor);
 
 public:	
 	// Called every frame
