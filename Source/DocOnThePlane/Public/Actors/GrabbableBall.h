@@ -29,12 +29,18 @@ protected:
 	UPROPERTY(Replicated)
 	AVRPawnCustom* HoldingPawn = nullptr;
 
+	UPROPERTY(Replicated)
+	EGrabHand HoldingHand = EGrabHand::None; 
+
+	UPROPERTY(Replicated)
+	FTransform GrabRelativeTransform; 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual bool TryClaim_Implementation(AVRPawnCustom* RequestingPawn) override; 
-	virtual bool ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn) override;
+	virtual bool TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGrabHand RequestingHand, const FTransform& GrabOffset) override;
+	virtual bool ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& LinerarVelocity, const FVector& AngularVelocity) override;
 
 	UFUNCTION(BlueprintPure, Category = "Networking:Grab")
 	AVRPawnCustom* GetHoldingPawn() const
@@ -42,9 +48,21 @@ public:
 		return HoldingPawn; 
 	}
 
+	UFUNCTION(BlueprintPure, Category = "Network:Grab")
+	EGrabHand GetHoldingHand() const
+	{
+		return HoldingHand; 
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Network:Grab")
+	FTransform GetGrabRelativeTransform() const
+	{
+		return GrabRelativeTransform; 
+	}
+
 
 	UFUNCTION(BlueprintPure, Category = "Networking:Grab")
-	bool IsHeld() const 
+	bool IsNetworkHeld() const 
 	{ 
 		return bIsHeld; 
 	}

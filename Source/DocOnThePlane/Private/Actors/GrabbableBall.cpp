@@ -4,6 +4,7 @@
 #include "Actors/GrabbableBall.h"
 #include "Net/UnrealNetwork.h"
 #include "Actors/Characters/VRPawnCustom.h"
+#include "Components/PrimitiveComponent.h"
 #include "../DocOnThePlane.h"
 
 
@@ -32,15 +33,30 @@ void AGrabbableBall::Tick(float DeltaTime)
 
 }
 
-bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn)
+bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGrabHand RequestingHand, const FTransform& GrabOffset)
 {
-	if (!HasAuthority() || !IsValid(RequestingPawn))
+	if (!HasAuthority() || !IsValid(RequestingPawn) || RequestingHand == EGrabHand::None)
 	{
 		return false;
 	}
 
+	
 	if (bIsHeld)
 	{
+
+		if (HoldingPawn == RequestingPawn)
+		{
+			HoldingHand = RequestingHand;
+			GrabRelativeTransform = GrabOffset;
+
+			const TCHAR* HandName = RequestingHand == EGrabHand::Left ? TEXT("Left") : TEXT("Right");
+			
+			UE_LOG(Game, Warning, TEXT("Ball hand changed: Ball %s, Holder %s, Hand %s"), *GetName(), *RequestingPawn->GetName(), HandName);
+			
+			return true;
+		}
+		
+
 		UE_LOG(Game, Warning, TEXT("Ball claim rejected, Ball: %s already held"), *GetName());
 
 		return false;
@@ -48,12 +64,16 @@ bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn)
 
 	bIsHeld = true;
 	HoldingPawn = RequestingPawn;
+	HoldingHand = RequestingHand;
+	GrabRelativeTransform = GrabOffset;
 
-	UE_LOG(Game, Warning, TEXT("Ball claimed: Ball %s, Holder %s"), *GetName(), *RequestingPawn->GetName());
+	const TCHAR* HandName = RequestingHand == EGrabHand::Left ? TEXT("Left") : TEXT("Right"); 
+
+	UE_LOG(Game, Warning, TEXT("Ball claimed: Ball %s, Holder %s, Hand %s"), *GetName(), *RequestingPawn->GetName(), HandName);
 	return true;
 }
 
-bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn)
+bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& LinearVelocity, const FVector& AngularVelocity)
 {
 	if (!HasAuthority() || !IsValid(RequestingPawn))
 	{
@@ -72,8 +92,23 @@ bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn)
 
 	bIsHeld = false;
 	HoldingPawn = nullptr;
+	HoldingHand = EGrabHand::None; 
 
-	UE_LOG(Game, Warning, TEXT("Ball released: Ball %s, Released by %s"), *GetName(), *RequestingPawn->GetName());
+	UPrimitiveComponent* PhysicsComponent = FindComponentByClass<UPrimitiveComponent>(); 
+
+	if (IsValid(PhysicsComponent))
+	{
+		PhysicsComponent->SetSimulatePhysics(true);
+
+		PhysicsComponent->SetPhysicsLinearVelocity(LinearVelocity);
+
+		PhysicsComponent->SetPhysicsAngularVelocityInDegrees(AngularVelocity); 
+	}
+
+
+	UE_LOG(Game, Warning, TEXT("Ball released: Ball %s, Released by %s,"
+		"LinearVel %s, AngularVel %s"), *GetName(), *RequestingPawn->GetName(),
+		*LinearVelocity.ToString(), *AngularVelocity.ToString());
 	return true; 
 
 }
@@ -84,5 +119,7 @@ void AGrabbableBall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 	DOREPLIFETIME(AGrabbableBall, bIsHeld);
 	DOREPLIFETIME(AGrabbableBall, HoldingPawn); 
+	DOREPLIFETIME(AGrabbableBall, HoldingHand); 
+	DOREPLIFETIME(AGrabbableBall, GrabRelativeTransform); 
 }
 

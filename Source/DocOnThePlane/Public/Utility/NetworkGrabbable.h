@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "../DocOnThePlane.h"
 #include "NetworkGrabbable.generated.h"
 
 
 class AVRPawnCustom; 
+
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, Blueprintable)
@@ -28,10 +30,10 @@ class DOCONTHEPLANE_API INetworkGrabbable
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Networking:Grab")
-	bool TryClaim(AVRPawnCustom* RequestingPawn); 
+	bool TryClaim(AVRPawnCustom* RequestingPawn, EGrabHand RequestingHand, const FTransform& GrabOffset); 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Networking:Grab")
-	bool ReleaseClaim(AVRPawnCustom* RequestingPawn);
+	bool ReleaseClaim(AVRPawnCustom* RequestingPawn, const FVector& LinearVelocity, const FVector& AngularVelocity);
 
 
 };

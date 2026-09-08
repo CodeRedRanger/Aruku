@@ -31,11 +31,11 @@ public:
 
 	//Networking
 	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
-	void RequestNetworkGrab(AActor* GrabbableActor); 
+	void RequestNetworkGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset); 
 
 
 	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
-	void RequestNetworkRelease(AActor* GrabbableActor);
+	void RequestNetworkRelease(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity);
 
 
 protected:
@@ -65,7 +65,7 @@ protected:
 	//Networking
 
 	UFUNCTION(Server, Reliable)
-	void ServerRequestNetworkGrab(AActor* GrabbableActor);
+	void ServerRequestNetworkGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset);
 
 	UFUNCTION(Client, Reliable)
 	void ClientRejectNetworkGrab();
@@ -74,7 +74,7 @@ protected:
 	void HandleNetworkGrabRejected();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRequestNetworkRelease(AActor* GrabbableActor); 
+	void ServerRequestNetworkRelease(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity); 
 	
 	//Left hand
 	UPROPERTY(ReplicatedUsing = OnRep_LeftHandTransform)
@@ -152,6 +152,10 @@ public:
 		return ReplicatedRightHandTransform; 
 	}
 
+	//Networking: Grab
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Network:Grab")
+	FTransform GetNetworkGrabHandTransform(EGrabHand GrabHand) const; 
+
 	//Debug functions to test network replication without a second player.
 	UFUNCTION(BlueprintCallable, Category = "Network Debug")
 	void DebugMoveRight(); 
@@ -163,7 +167,7 @@ public:
 	void DebugPrintPawnLocation(); 
 
 	UFUNCTION(BlueprintCallable, Category = "Network Debug")
-	void DebugRequestGrab(AActor* GrabbableActor);
+	void DebugRequestGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset);
 
 public:	
 	// Called every frame
