@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(Replicated)
 	FTransform GrabRelativeTransform; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Throw")
+	float ThrowStrengthMultiplier = 1.0f;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

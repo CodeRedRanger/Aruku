@@ -62,6 +62,14 @@ bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGra
 		return false;
 	}
 
+	UPrimitiveComponent* PhysicsComponent = FindComponentByClass<UPrimitiveComponent>(); 
+	if (IsValid(PhysicsComponent))
+	{
+		PhysicsComponent->SetPhysicsLinearVelocity(FVector::ZeroVector); 
+		PhysicsComponent->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+		PhysicsComponent->SetSimulatePhysics(false);
+	}
+
 	bIsHeld = true;
 	HoldingPawn = RequestingPawn;
 	HoldingHand = RequestingHand;
@@ -100,7 +108,7 @@ bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, 
 	{
 		PhysicsComponent->SetSimulatePhysics(true);
 
-		PhysicsComponent->SetPhysicsLinearVelocity(LinearVelocity);
+		PhysicsComponent->SetPhysicsLinearVelocity(LinearVelocity * ThrowStrengthMultiplier);
 
 		PhysicsComponent->SetPhysicsAngularVelocityInDegrees(AngularVelocity); 
 	}
