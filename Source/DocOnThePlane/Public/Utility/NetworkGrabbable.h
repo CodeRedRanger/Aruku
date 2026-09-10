@@ -33,7 +33,7 @@ public:
 	bool TryClaim(AVRPawnCustom* RequestingPawn, EGrabHand RequestingHand, const FTransform& GrabOffset); 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Networking:Grab")
-	bool ReleaseClaim(AVRPawnCustom* RequestingPawn, const FVector& LinearVelocity, const FVector& AngularVelocity);
+	bool ReleaseClaim(AVRPawnCustom* RequestingPawn, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity);
 
 
 };

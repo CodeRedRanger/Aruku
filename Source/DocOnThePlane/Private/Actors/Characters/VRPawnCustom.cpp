@@ -280,7 +280,7 @@ void AVRPawnCustom::ClientRejectNetworkGrab_Implementation()
 }
 
 
-void AVRPawnCustom::ServerRequestNetworkRelease_Implementation(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity)
+void AVRPawnCustom::ServerRequestNetworkRelease_Implementation(AActor* GrabbableActor, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity)
 {
 	if (!IsValid(GrabbableActor))
 	{
@@ -292,7 +292,7 @@ void AVRPawnCustom::ServerRequestNetworkRelease_Implementation(AActor* Grabbable
 		return;
 	}
 
-	INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this, LinearVelocity, AngularVelocity); 
+	INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this, ReleaseLocation, ReleaseRotation, LinearVelocity, AngularVelocity); 
 
 }
 
@@ -549,7 +549,7 @@ void AVRPawnCustom::RequestNetworkGrab(AActor* GrabbableActor, EGrabHand GrabHan
 	}
 }
 
-void AVRPawnCustom::RequestNetworkRelease(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity)
+void AVRPawnCustom::RequestNetworkRelease(AActor* GrabbableActor,const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity)
 {
 	if (!IsLocallyControlled() || !IsValid(GrabbableActor))
 	{
@@ -560,12 +560,12 @@ void AVRPawnCustom::RequestNetworkRelease(AActor* GrabbableActor, FVector Linear
 	{
 		if (GrabbableActor->GetClass()->ImplementsInterface(UNetworkGrabbable::StaticClass()))
 		{
-			INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this, LinearVelocity, AngularVelocity);
+			INetworkGrabbable::Execute_ReleaseClaim(GrabbableActor, this, ReleaseLocation, ReleaseRotation, LinearVelocity, AngularVelocity);
 		}
 	}
 	else
 	{
-		ServerRequestNetworkRelease(GrabbableActor, LinearVelocity, AngularVelocity); 
+		ServerRequestNetworkRelease(GrabbableActor, ReleaseLocation, ReleaseRotation, LinearVelocity, AngularVelocity); 
 	}
 }
 

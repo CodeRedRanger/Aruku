@@ -35,7 +35,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
-	void RequestNetworkRelease(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity);
+	void RequestNetworkRelease(AActor* GrabbableActor, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity);
 
 
 protected:
@@ -74,7 +74,7 @@ protected:
 	void HandleNetworkGrabRejected();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRequestNetworkRelease(AActor* GrabbableActor, FVector LinearVelocity, FVector AngularVelocity); 
+	void ServerRequestNetworkRelease(AActor* GrabbableActor, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity); 
 	
 	//Left hand
 	UPROPERTY(ReplicatedUsing = OnRep_LeftHandTransform)

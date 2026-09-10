@@ -81,7 +81,7 @@ bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGra
 	return true;
 }
 
-bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& LinearVelocity, const FVector& AngularVelocity)
+bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity)
 {
 	if (!HasAuthority() || !IsValid(RequestingPawn))
 	{
@@ -102,6 +102,9 @@ bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, 
 	HoldingPawn = nullptr;
 	HoldingHand = EGrabHand::None; 
 
+
+	SetActorLocationAndRotation(ReleaseLocation, ReleaseRotation, false, nullptr, ETeleportType::TeleportPhysics);
+
 	UPrimitiveComponent* PhysicsComponent = FindComponentByClass<UPrimitiveComponent>(); 
 
 	if (IsValid(PhysicsComponent))
@@ -114,9 +117,12 @@ bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, 
 	}
 
 
-	UE_LOG(Game, Warning, TEXT("Ball released: Ball %s, Released by %s,"
+	UE_LOG(Game, Warning, TEXT("Ball released: Ball %s, Released by %s, ReleaseLocation %s, ReleaseRotation %s, "
 		"LinearVel %s, AngularVel %s"), *GetName(), *RequestingPawn->GetName(),
+		*ReleaseLocation.ToString(), *ReleaseRotation.ToString(),
 		*LinearVelocity.ToString(), *AngularVelocity.ToString());
+
+	ForceNetUpdate(); 
 	return true; 
 
 }

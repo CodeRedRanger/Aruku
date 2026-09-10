@@ -43,7 +43,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual bool TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGrabHand RequestingHand, const FTransform& GrabOffset) override;
-	virtual bool ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& LinerarVelocity, const FVector& AngularVelocity) override;
+	virtual bool ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity) override;
 
 	UFUNCTION(BlueprintPure, Category = "Networking:Grab")
 	AVRPawnCustom* GetHoldingPawn() const
