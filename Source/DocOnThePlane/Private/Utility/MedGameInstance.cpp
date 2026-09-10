@@ -5,6 +5,23 @@
 #include "../DocOnThePlane.h"
 
 
+void UMedGameInstance::HostGame()
+{
+	const bool bStartedListening = EnableListenServer(true, 0);
+
+	if (bStartedListening)
+	{
+		UE_LOG(Game, Log, TEXT("HostGame SUCCESS: Main menu is now a listen server."));
+	}
+	else
+	{
+		UE_LOG(Game, Error, TEXT("HostGame FAILED: Could not start listen server."));
+	}
+
+
+}
+
+//CAN REMOVE ALL BELOW
 float UMedGameInstance::AddChaos(float ChaosChange)
 {
 	ChaosScore = FMath::Clamp(
@@ -66,3 +83,5 @@ void UMedGameInstance::HandleChaosScore(float ChaosScoreForBranch)
 		bHasTriggeredNormal = true;
 	}
 }
+
+//END REMOVE

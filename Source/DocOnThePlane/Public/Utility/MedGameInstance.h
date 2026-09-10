@@ -16,6 +16,11 @@ class DOCONTHEPLANE_API UMedGameInstance : public UGameInstance
 
 public:
 
+	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
+	void HostGame(); 
+
+
+	//All of this can be removed
 	UFUNCTION(BlueprintCallable, Category = "Chaos")
 	float AddChaos(float ChaosChange);
 
@@ -39,16 +44,20 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	USoundBase* CrowdClamorSound;
+	//end remove
 
 protected:
 
 	
 	
 private:
+
+	//All of this can be removed
 	UPROPERTY()
 	float ChaosScore = 10.0f;
 	bool bHasTriggeredWarning = false;
 	bool bHasTriggeredCrowdNoise = false;
+	//end remove
 
 	
 
