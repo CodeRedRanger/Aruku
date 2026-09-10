@@ -405,6 +405,203 @@ void AVRPawnCustom::ServerTeleportPawn_Implementation(const FVector& NewLocation
 	
 }
 
+//Networking: Left hand animations
+
+void AVRPawnCustom::ServerUpdateLeftGrasp_Implementation(float NewValue)
+{
+	ReplicatedLeftGrasp = FMath::Clamp(NewValue, 0.0f, 1.0f); 
+	UE_LOG(Game, Warning, TEXT("LEFT GRASP SERVER RECEIVED: Pawn: %s, Value: %.2f"),
+		*GetName(),ReplicatedLeftGrasp);
+}
+
+void AVRPawnCustom::ServerUpdateLeftIndexCurl_Implementation(float NewValue)
+{
+	ReplicatedLeftIndexCurl = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+void AVRPawnCustom::ServerUpdateLeftPoint_Implementation(float NewValue)
+{
+	ReplicatedLeftPoint = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+void AVRPawnCustom::ServerUpdateLeftThumbUp_Implementation(float NewValue)
+{
+	ReplicatedLeftThumbUp = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+
+void AVRPawnCustom::UpdateLocalLeftGrasp(float NewValue)
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	UE_LOG(Game, Warning, TEXT("Left Grasp Local: Pawn: %s, Authority: %s, Value: %.2f"),
+		*GetName(), HasAuthority() ? TEXT("YES") : TEXT("NO"), NewValue);
+
+	if (HasAuthority())
+	{
+		ReplicatedLeftGrasp = NewValue;
+	}
+	else
+	{
+		ServerUpdateLeftGrasp(NewValue);
+	}
+
+}
+
+void AVRPawnCustom::UpdateLocalLeftIndexCurl(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedLeftIndexCurl = NewValue;
+	}
+	else
+	{
+		ServerUpdateLeftIndexCurl(NewValue);
+	}
+}
+
+void AVRPawnCustom::UpdateLocalLeftPoint(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedLeftPoint = NewValue;
+	}
+	else
+	{
+		ServerUpdateLeftPoint(NewValue);
+	}
+}
+
+void AVRPawnCustom::UpdateLocalLeftThumbUp(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedLeftThumbUp = NewValue;
+	}
+	else
+	{
+		ServerUpdateLeftThumbUp(NewValue);
+	}
+}
+
+
+//Networking: Right hand animations
+
+
+
+void AVRPawnCustom::ServerUpdateRightGrasp_Implementation(float NewValue)
+{
+	ReplicatedRightGrasp = FMath::Clamp(NewValue, 0.0f, 1.0f); 
+}
+
+void AVRPawnCustom::ServerUpdateRightIndexCurl_Implementation(float NewValue)
+{
+	ReplicatedRightIndexCurl = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+void AVRPawnCustom::ServerUpdateRightPoint_Implementation(float NewValue)
+{
+	ReplicatedRightPoint = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+void AVRPawnCustom::ServerUpdateRightThumbUp_Implementation(float NewValue)
+{
+	ReplicatedRightThumbUp = FMath::Clamp(NewValue, 0.0f, 1.0f);
+}
+
+
+void AVRPawnCustom::UpdateLocalRightGrasp(float NewValue)
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	UE_LOG(Game, Warning, TEXT("Right Grasp Local: Pawn: %s, Authority: %s, Value: %.2f"),
+		*GetName(), HasAuthority() ? TEXT("YES") : TEXT("NO"), NewValue); 
+
+	if (HasAuthority())
+	{
+		ReplicatedRightGrasp = NewValue;
+	}
+	else
+	{
+		ServerUpdateRightGrasp(NewValue); 
+	}
+}
+
+void AVRPawnCustom::UpdateLocalRightIndexCurl(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedRightIndexCurl = NewValue;
+	}
+	else
+	{
+		ServerUpdateRightIndexCurl(NewValue);
+	}
+}
+
+void AVRPawnCustom::UpdateLocalRightPoint(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedRightPoint = NewValue;
+	}
+	else
+	{
+		ServerUpdateRightPoint(NewValue);
+	}
+}
+
+void AVRPawnCustom::UpdateLocalRightThumbUp(float NewValue)
+{
+	if (!IsLocallyControlled())
+		return;
+
+	NewValue = FMath::Clamp(NewValue, 0.0f, 1.0f);
+
+	if (HasAuthority())
+	{
+		ReplicatedRightThumbUp = NewValue;
+	}
+	else
+	{
+		ServerUpdateRightThumbUp(NewValue);
+	}
+}
 
 void AVRPawnCustom::NotifyServerOfRotation(const FRotator& NewRotation)
 {
@@ -449,6 +646,14 @@ void AVRPawnCustom::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(AVRPawnCustom, ReplicatedHeadTransform); 
 	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftHandTransform); 
 	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightHandTransform); 
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftGrasp); 
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightGrasp); 
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftIndexCurl);
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightIndexCurl);
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftPoint);
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightPoint);
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedLeftThumbUp);
+	DOREPLIFETIME(AVRPawnCustom, ReplicatedRightThumbUp);
 }
 
 void AVRPawnCustom::DebugMoveRight()

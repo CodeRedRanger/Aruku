@@ -123,8 +123,143 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerUpdatePawnRotation(const FRotator& NewRotation); 
 
+	//Hand animations
+
+	//Let hand animations
+
+	UPROPERTY(Replicated)
+	float ReplicatedLeftGrasp = 0.0f; 
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateLeftGrasp(float NewValue); 
+
+
+	UPROPERTY(Replicated)
+	float ReplicatedLeftIndexCurl = 0.0f;
+
+	UPROPERTY(Replicated)
+	float ReplicatedLeftPoint = 0.0f;
+
+	UPROPERTY(Replicated)
+	float ReplicatedLeftThumbUp = 0.0f;
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateLeftIndexCurl(float NewValue);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateLeftPoint(float NewValue);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateLeftThumbUp(float NewValue);
+
+
+	//Right hand animations
+
+	UPROPERTY(Replicated) 
+	float ReplicatedRightGrasp = 0.0f; 
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateRightGrasp(float NewValue); 
+
+	UPROPERTY(Replicated)
+	float ReplicatedRightIndexCurl = 0.0f;
+
+	UPROPERTY(Replicated)
+	float ReplicatedRightPoint = 0.0f;
+
+	UPROPERTY(Replicated)
+	float ReplicatedRightThumbUp = 0.0f;
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateRightIndexCurl(float NewValue);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateRightPoint(float NewValue);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerUpdateRightThumbUp(float NewValue);
+
 
 public:
+
+	//Networking: Hand animations
+
+	//Left hand animations
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalLeftGrasp(float NewValue);
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedLeftGrasp() const
+	{
+		return ReplicatedLeftGrasp; 
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalLeftIndexCurl(float NewValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalLeftPoint(float NewValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalLeftThumbUp(float NewValue);
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedLeftIndexCurl() const
+	{
+		return ReplicatedLeftIndexCurl;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedLeftPoint() const
+	{
+		return ReplicatedLeftPoint;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedLeftThumbUp() const
+	{
+		return ReplicatedLeftThumbUp;
+	}
+
+
+	//Right hand animations
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalRightGrasp(float NewValue); 
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedRightGrasp() const
+	{
+		return ReplicatedRightGrasp; 
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalRightIndexCurl(float NewValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalRightPoint(float NewValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:HandAnimations")
+	void UpdateLocalRightThumbUp(float NewValue);
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedRightIndexCurl() const
+	{
+		return ReplicatedRightIndexCurl;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedRightPoint() const
+	{
+		return ReplicatedRightPoint;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "Network:HandAnimations")
+	float GetReplicatedRightThumbUp() const
+	{
+		return ReplicatedRightThumbUp;
+	}
+
+
 	//Networking
 	UFUNCTION(BlueprintCallable, Category = Networking)
 	void NotifyServerOfRotation(const FRotator& NewRotation); 
