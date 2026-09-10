@@ -75,6 +75,8 @@ bool AGrabbableBall::TryClaim_Implementation(AVRPawnCustom* RequestingPawn, EGra
 	HoldingHand = RequestingHand;
 	GrabRelativeTransform = GrabOffset;
 
+	SetReplicateMovement(false); 
+
 	const TCHAR* HandName = RequestingHand == EGrabHand::Left ? TEXT("Left") : TEXT("Right"); 
 
 	UE_LOG(Game, Warning, TEXT("Ball claimed: Ball %s, Holder %s, Hand %s"), *GetName(), *RequestingPawn->GetName(), HandName);
@@ -103,7 +105,14 @@ bool AGrabbableBall::ReleaseClaim_Implementation(AVRPawnCustom* RequestingPawn, 
 	HoldingHand = EGrabHand::None; 
 
 
+	UE_LOG(Game,Warning,TEXT("Release: ServerBallBefore: %s, ClientRelease: %s, Difference: %.2f cm"),
+		*GetActorLocation().ToString(),*ReleaseLocation.ToString(),FVector::Distance(GetActorLocation(), ReleaseLocation));
+
 	SetActorLocationAndRotation(ReleaseLocation, ReleaseRotation, false, nullptr, ETeleportType::TeleportPhysics);
+
+	SetReplicateMovement(true); 
+
+	ForceNetUpdate(); 
 
 	UPrimitiveComponent* PhysicsComponent = FindComponentByClass<UPrimitiveComponent>(); 
 
