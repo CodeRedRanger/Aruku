@@ -5,7 +5,7 @@
 #include "../DocOnThePlane.h"
 
 
-void UMedGameInstance::HostGame()
+bool UMedGameInstance::HostGame()
 {
 	const bool bStartedListening = EnableListenServer(true, 0);
 
@@ -18,7 +18,30 @@ void UMedGameInstance::HostGame()
 		UE_LOG(Game, Error, TEXT("HostGame FAILED: Could not start listen server."));
 	}
 
+	return bStartedListening; 
+}
 
+bool UMedGameInstance::JoinGameByIP(const FString& Address)
+{
+	if (Address.IsEmpty())
+	{
+		UE_LOG(Game, Warning, TEXT("JoinGameByIP failed: Address is empty."));
+		return false; 
+	}
+
+	APlayerController* PlayerController = GetFirstLocalPlayerController(); 
+
+	if (!IsValid(PlayerController))
+	{
+		UE_LOG(Game, Error, TEXT("JoinGameByIP failed: No local PlayerController."));
+		return false; 
+	}
+
+	UE_LOG(Game, Warning, TEXT("JoinGameByIP: Attempting to connect to %s"), *Address);
+
+	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	
+	return true; 
 }
 
 //CAN REMOVE ALL BELOW

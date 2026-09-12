@@ -125,7 +125,7 @@ protected:
 
 	//Hand animations
 
-	//Let hand animations
+	//Left hand animations
 
 	UPROPERTY(Replicated)
 	float ReplicatedLeftGrasp = 0.0f; 

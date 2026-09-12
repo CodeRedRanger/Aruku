@@ -17,7 +17,10 @@ class DOCONTHEPLANE_API UMedGameInstance : public UGameInstance
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
-	void HostGame(); 
+	bool HostGame(); 
+
+	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
+	bool JoinGameByIP(const FString& Address); 
 
 
 	//All of this can be removed
