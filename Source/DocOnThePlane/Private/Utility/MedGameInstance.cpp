@@ -2,6 +2,9 @@
 
 
 #include "Utility/MedGameInstance.h"
+#include "Engine/Engine.h"
+#include "Engine/NetDriver.h"
+#include "GameFramework/PlayerController.h"
 #include "../DocOnThePlane.h"
 
 
@@ -23,9 +26,11 @@ bool UMedGameInstance::HostGame()
 
 bool UMedGameInstance::JoinGameByIP(const FString& Address)
 {
-	if (Address.IsEmpty())
+	const FString CleanAddress = Address.TrimStartAndEnd(); 
+
+	if (!IsValidIPv4Address(CleanAddress))
 	{
-		UE_LOG(Game, Warning, TEXT("JoinGameByIP failed: Address is empty."));
+		UE_LOG(Game, Warning, TEXT("JoinGameByIP failed: Address is not a valid IPv4 address: %s."), *CleanAddress);
 		return false; 
 	}
 
@@ -37,12 +42,89 @@ bool UMedGameInstance::JoinGameByIP(const FString& Address)
 		return false; 
 	}
 
+	FString AddressWithPort = Address;
+
+	if (!AddressWithPort.Contains(TEXT(":")))
+	{
+		AddressWithPort += TEXT(":7777"); // Default port
+	}
+
 	UE_LOG(Game, Warning, TEXT("JoinGameByIP: Attempting to connect to %s"), *Address);
 
 	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 	
 	return true; 
 }
+
+void UMedGameInstance::Init()
+{
+	Super::Init();
+
+	if (GEngine)
+	{
+		GEngine->OnNetworkFailure().AddUObject(this, &UMedGameInstance::HandleNetworkFailure);
+	}
+}
+
+void UMedGameInstance::Shutdown()
+{
+	if (GEngine)
+	{
+		GEngine->OnNetworkFailure().RemoveAll(this); 
+	}
+
+	Super::Shutdown();
+}
+
+
+bool UMedGameInstance::IsValidIPv4Address(const FString& Address) const
+{
+
+	TArray<FString> Parts;
+	Address.ParseIntoArray(Parts, TEXT("."), true);
+
+	if (Parts.Num() != 4)
+	{
+		UE_LOG(Game, Warning, TEXT("IsValidIPv4Address: Address does not have 4 parts."));
+		return false;
+	}
+
+	for (const FString& Part : Parts)
+	{
+		if (Part.IsEmpty())
+		{
+			return false;
+		}
+
+		//Check that characters are digits
+		for (TCHAR Character : Part)
+		{
+			if (!FChar::IsDigit(Character))
+			{
+				return false;
+			}
+		}
+
+		const int32 Value = FCString::Atoi(*Part);
+
+		if (Value < 0 || Value > 255)
+		{
+			return false;
+		}
+
+	}
+
+	return true;
+}
+
+void UMedGameInstance::HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
+{
+	UE_LOG(Game, Error, TEXT("Network failure: Type: %d, Error: %s"), static_cast<int32>(FailureType), *ErrorString);
+	OnNetworkJoinFailed.Broadcast(TEXT("Could not connect to host."));
+}
+
+
+
 
 //CAN REMOVE ALL BELOW
 float UMedGameInstance::AddChaos(float ChaosChange)
@@ -108,3 +190,4 @@ void UMedGameInstance::HandleChaosScore(float ChaosScoreForBranch)
 }
 
 //END REMOVE
+

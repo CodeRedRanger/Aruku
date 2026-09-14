@@ -6,9 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "MedGameInstance.generated.h"
 
-/**
- * 
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNetworkJoinFailedSignature, const FString&, ErrorMessage);
 UCLASS()
 class DOCONTHEPLANE_API UMedGameInstance : public UGameInstance
 {
@@ -22,7 +20,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
 	bool JoinGameByIP(const FString& Address); 
 
+	virtual void Init() override;
+	virtual void Shutdown() override;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Networking:Lobby")
+	FNetworkJoinFailedSignature OnNetworkJoinFailed;
 
+private:
+	bool IsValidIPv4Address(const FString& Address) const;
+	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
+
+
+public: 
 	//All of this can be removed
 	UFUNCTION(BlueprintCallable, Category = "Chaos")
 	float AddChaos(float ChaosChange);
@@ -61,6 +70,8 @@ private:
 	bool bHasTriggeredWarning = false;
 	bool bHasTriggeredCrowdNoise = false;
 	//end remove
+
+
 
 	
 

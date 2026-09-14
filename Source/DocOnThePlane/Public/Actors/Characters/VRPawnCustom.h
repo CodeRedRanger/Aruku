@@ -29,14 +29,7 @@ public:
 	void ResetFlightAttendantWarning();
 
 
-	//Networking
-	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
-	void RequestNetworkGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset); 
-
-
-	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
-	void RequestNetworkRelease(AActor* GrabbableActor, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity);
-
+	
 
 protected:
 
@@ -182,6 +175,13 @@ protected:
 
 public:
 
+	//Networking: Lobby
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Network:Lobby")
+	void HandleNetworkPlayerJoined(); 
+
+
+
 	//Networking: Hand animations
 
 	//Left hand animations
@@ -260,33 +260,7 @@ public:
 	}
 
 
-	//Networking
-	UFUNCTION(BlueprintCallable, Category = Networking)
-	void NotifyServerOfRotation(const FRotator& NewRotation); 
-
-	UFUNCTION(BlueprintCallable, Category = Networking)
-	void NotifyServerOfTeleport(const FVector& NewLocation, const FRotator& NewRotation); 
-	 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	UFUNCTION(BlueprintPure, Category = Networking)
-	FTransform GetReplicatedHeadTransform() const
-	{
-		return ReplicatedHeadTransform; 
-	}
-
-	UFUNCTION(BlueprintPure, Category = Networking)
-	FTransform GetReplicatedLeftHandTransform() const
-	{
-		return ReplicatedLeftHandTransform; 
-	}
-
-	UFUNCTION(BlueprintPure, Category = Networking)
-	FTransform GetReplicatedRightHandTransform() const
-	{
-		return ReplicatedRightHandTransform; 
-	}
-
+	
 	//Networking: Grab
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Network:Grab")
 	FTransform GetNetworkGrabHandTransform(EGrabHand GrabHand) const; 
@@ -303,6 +277,42 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Network Debug")
 	void DebugRequestGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
+	void RequestNetworkGrab(AActor* GrabbableActor, EGrabHand GrabHand, const FTransform& GrabOffset);
+
+	UFUNCTION(BlueprintCallable, Category = "Network:Grab")
+	void RequestNetworkRelease(AActor* GrabbableActor, const FVector& ReleaseLocation, const FRotator& ReleaseRotation, const FVector& LinearVelocity, const FVector& AngularVelocity);
+
+
+	//Networking: Movement
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void NotifyServerOfRotation(const FRotator& NewRotation);
+
+	UFUNCTION(BlueprintCallable, Category = Networking)
+	void NotifyServerOfTeleport(const FVector& NewLocation, const FRotator& NewRotation);
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedHeadTransform() const
+	{
+		return ReplicatedHeadTransform;
+	}
+
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedLeftHandTransform() const
+	{
+		return ReplicatedLeftHandTransform;
+	}
+
+	UFUNCTION(BlueprintPure, Category = Networking)
+	FTransform GetReplicatedRightHandTransform() const
+	{
+		return ReplicatedRightHandTransform;
+	}
+
+
 
 public:	
 	// Called every frame
