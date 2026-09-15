@@ -18,5 +18,7 @@ class DOCONTHEPLANE_API AArukuGameModeBase : public AGameModeBase
 protected:
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	virtual void Logout(AController* Exiting) override; 
 	
 };

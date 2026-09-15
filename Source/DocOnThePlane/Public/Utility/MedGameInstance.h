@@ -26,6 +26,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Networking:Lobby")
 	FNetworkJoinFailedSignature OnNetworkJoinFailed;
 
+	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
+	void LeaveNetworkGame(); 
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Networking:Lobby")
+	void ResetNetworkStateForLeave(); 
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Networking:Lobby")
+	void HandleNetworkFailureState(const FString& ErrorMessage); 
+
 private:
 	bool IsValidIPv4Address(const FString& Address) const;
 	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
@@ -58,7 +68,7 @@ public:
 	USoundBase* CrowdClamorSound;
 	//end remove
 
-protected:
+
 
 	
 	

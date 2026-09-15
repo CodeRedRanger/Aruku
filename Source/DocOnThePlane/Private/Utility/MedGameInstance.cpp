@@ -4,6 +4,7 @@
 #include "Utility/MedGameInstance.h"
 #include "Engine/Engine.h"
 #include "Engine/NetDriver.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
 #include "../DocOnThePlane.h"
 
@@ -77,6 +78,43 @@ void UMedGameInstance::Shutdown()
 }
 
 
+void UMedGameInstance::LeaveNetworkGame()
+{
+	UWorld* World = GetWorld(); 
+
+	if (!IsValid(World))
+	{
+		return; 
+	}
+
+	ResetNetworkStateForLeave(); 
+
+	const ENetMode NetMode = World->GetNetMode(); 
+
+	if (NetMode == NM_ListenServer)
+	{
+		//Host leaving
+		if (AGameModeBase* GameMode = World->GetAuthGameMode())
+		{
+			GameMode->ReturnToMainMenuHost(); 
+		}
+
+		return;
+
+	}
+
+	if (NetMode == NM_Client)
+	{
+
+		//Client leaving
+		if (APlayerController* PlayerController = GetFirstLocalPlayerController())
+		{
+			PlayerController->ClientTravel(TEXT("/Game/Maps/L_MainMenu"), ETravelType::TRAVEL_Absolute);
+		}
+	}
+
+}
+
 bool UMedGameInstance::IsValidIPv4Address(const FString& Address) const
 {
 
@@ -120,7 +158,14 @@ bool UMedGameInstance::IsValidIPv4Address(const FString& Address) const
 void UMedGameInstance::HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
 {
 	UE_LOG(Game, Error, TEXT("Network failure: Type: %d, Error: %s"), static_cast<int32>(FailureType), *ErrorString);
-	OnNetworkJoinFailed.Broadcast(TEXT("Could not connect to host."));
+		
+	HandleNetworkFailureState(ErrorString);
+
+	//no longer needed since handle network failure state covers this
+	//OnNetworkJoinFailed.Broadcast(TEXT("Could not connect to host.")); //this will set network state to join failed, so not good if host leaves
+
+	
+
 }
 
 

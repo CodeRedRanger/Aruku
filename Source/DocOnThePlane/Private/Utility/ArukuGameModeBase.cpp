@@ -48,3 +48,31 @@ void AArukuGameModeBase::PostLogin(APlayerController* NewPlayer)
 	}
 
 }
+
+void AArukuGameModeBase::Logout(AController* Exiting)
+{
+	if (IsValid(Exiting))
+	{
+		UE_LOG(Game, Warning, TEXT("Player leaving: %s"), *Exiting->GetName());
+	}
+
+	Super::Logout(Exiting); 
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+
+		if (!IsValid(PlayerController) ||  !PlayerController->IsLocalController())
+		{
+			continue;
+		}
+
+		AVRPawnCustom* HostPawn = Cast<AVRPawnCustom>(PlayerController->GetPawn()); 
+
+		if (IsValid(HostPawn))
+		{
+			HostPawn->HandleNetworkPlayerLeft();
+			break; 
+		}
+	}
+}

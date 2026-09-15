@@ -179,6 +179,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Network:Lobby")
 	void HandleNetworkPlayerJoined(); 
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Network:Lobby")
+	void HandleNetworkPlayerLeft(); 
 
 
 
