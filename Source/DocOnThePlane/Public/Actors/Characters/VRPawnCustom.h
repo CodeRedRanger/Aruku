@@ -173,6 +173,7 @@ protected:
 	void ServerUpdateRightThumbUp(float NewValue);
 
 
+
 public:
 
 	//Networking: Lobby
@@ -182,6 +183,7 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Network:Lobby")
 	void HandleNetworkPlayerLeft(); 
+
 
 
 

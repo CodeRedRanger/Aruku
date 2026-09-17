@@ -430,6 +430,7 @@ void AVRPawnCustom::ServerUpdateLeftThumbUp_Implementation(float NewValue)
 }
 
 
+
 void AVRPawnCustom::UpdateLocalLeftGrasp(float NewValue)
 {
 	if (!IsLocallyControlled())

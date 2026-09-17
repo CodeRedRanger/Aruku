@@ -14,6 +14,9 @@ class DOCONTHEPLANE_API UMedGameInstance : public UGameInstance
 
 public:
 
+	UFUNCTION(BlueprintCallable, Category = "Networking:Travel")
+	void StartNetworkGame(); 
+
 	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
 	bool HostGame(); 
 
@@ -29,6 +32,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Networking:Lobby")
 	void LeaveNetworkGame(); 
 
+	UFUNCTION(BlueprintPure, Category = "Network: Travel")
+	bool IsNetworkTravelInProgress() const
+	{
+		return bNetworkTravelInProgress;
+	}
+
+	void SetNetworkTravelInProgress(bool bInProgress)
+	{
+		bNetworkTravelInProgress = bInProgress; 
+	}
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Networking:Lobby")
 	void ResetNetworkStateForLeave(); 
@@ -40,6 +54,7 @@ private:
 	bool IsValidIPv4Address(const FString& Address) const;
 	void HandleNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString);
 
+	bool bNetworkTravelInProgress = false; 
 
 public: 
 	//All of this can be removed

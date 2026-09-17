@@ -6,8 +6,42 @@
 #include "Engine/NetDriver.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
+#include "Actors/Characters/VRPawnCustom.h"
 #include "../DocOnThePlane.h"
 
+
+void UMedGameInstance::StartNetworkGame()
+{
+	UWorld* World = GetWorld(); 
+
+	if (!World)
+	{
+		UE_LOG(Game, Error, TEXT("StartNetworkGame: World is null."));
+		return;
+	}
+
+	if (World->GetNetMode() != NM_ListenServer)
+	{
+		UE_LOG(Game, Warning, TEXT("StartNetworkGame: This is not the listen server."));
+		return; 
+	}
+
+	UE_LOG(Game, Warning, TEXT("Host starting network game with ServerTravel."));	
+
+	const FString MapPath = TEXT("/Game/VRTemplate/Maps/VRTemplateMap"); 
+
+	bNetworkTravelInProgress = true; 
+
+	const bool bTravelStarted = World->ServerTravel(MapPath); 
+
+	if (!bTravelStarted)
+	{
+		bNetworkTravelInProgress = false; 
+	}
+
+	UE_LOG(Game, Warning, TEXT("ServerTravel started: %s"), bTravelStarted ? TEXT("YES") : TEXT("NO"));	
+
+}
 
 bool UMedGameInstance::HostGame()
 {
@@ -105,12 +139,11 @@ void UMedGameInstance::LeaveNetworkGame()
 
 	if (NetMode == NM_Client)
 	{
+		UE_LOG(Game,Warning,TEXT("Client leaving network game. Returning to main menu."));
 
-		//Client leaving
-		if (APlayerController* PlayerController = GetFirstLocalPlayerController())
-		{
-			PlayerController->ClientTravel(TEXT("/Game/Maps/L_MainMenu"), ETravelType::TRAVEL_Absolute);
-		}
+		ReturnToMainMenu();
+
+		return;
 	}
 
 }
