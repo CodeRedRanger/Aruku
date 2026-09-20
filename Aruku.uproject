@@ -26,7 +26,7 @@
 			]
 		},
 		{
-			"Name": "OpenXREyeTracker",
+			"Name": "OpenXRHandTracking",
 			"Enabled": true,
 			"SupportedTargetPlatforms": [
 				"Win64",
@@ -36,7 +36,19 @@
 			]
 		},
 		{
-			"Name": "OpenXRHandTracking",
+			"Name": "Water",
+			"Enabled": true
+		},
+		{
+			"Name": "WaterExtras",
+			"Enabled": true
+		},
+		{
+			"Name": "WaterAdvanced",
+			"Enabled": true
+		},
+		{
+			"Name": "OpenXREyeTracker",
 			"Enabled": true,
 			"SupportedTargetPlatforms": [
 				"Win64",

@@ -1,0 +1,2 @@
+Content/Assets/Textures/Landscape_Texture/Path_Details/Rocky_Forest_Floor/*.uasset filter=lfs diff=lfs merge=lfs -text
+Content/Assets/Textures/**/*.uasset filter=lfs diff=lfs merge=lfs -text
